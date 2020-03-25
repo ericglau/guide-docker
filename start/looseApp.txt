@@ -1,0 +1,25 @@
+To run in loose application:
+
+1. cd guide-docker/start
+
+2. Set JAVA_HOME to use the same JDK version as in the Dockerfile (default for "open-liberty" docker image is Java 8)
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/adoptopenjdk-8-openj9.jdk/Contents/Home
+
+3. Start dev mode in headless, assuming it has been built as per https://github.com/OpenLiberty/ci.maven/issues/754#issuecomment-597253666
+mvn clean liberty:dev -Dheadless
+
+4. Docker run but map the current project dir to /app in the container
+docker run -d --name rest-app -p 9080:9080 -p 9443:9443 -v $(pwd)/target/liberty/wlp/usr/servers:/servers -v $(pwd):/app ol-runtime
+
+5. Edit target/liberty/wlp/usr/servers/defaultServer/apps/rest.war.xml to have the following content, which parameterizes the project root:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<archive>
+    <dir sourceOnDisk="${project.root}/src/main/webapp" targetInArchive="/"/>
+    <dir sourceOnDisk="${project.root}/target/classes" targetInArchive="/WEB-INF/classes"/>
+    <file sourceOnDisk="${project.root}/tmp/META-INF/MANIFEST.MF" targetInArchive="/META-INF/MANIFEST.MF"/>
+</archive>
+
+6. Notice server.xml has <variable name="project.root" value="/app" />
+
+7. Go to http://localhost:9080/LibertyProject/System/properties and ensure it works
