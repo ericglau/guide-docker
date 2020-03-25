@@ -9,4 +9,6 @@
       id="defaultHttpEndpoint" host="*" />
 
   <webApplication location="rest.war" contextRoot="${app.context.root}"/>
+
+  <variable name="project.root" value="/app" />
 </server>
